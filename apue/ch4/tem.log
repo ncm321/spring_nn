@@ -1,0 +1,7 @@
+A string write to stdout.
+Before fork.
+Child process PID[24436] is running
+PID=66620,g_var=7,var=89
+Before fork.
+Parent process PID[24435] is waiting
+PID=66620,g_var=6,var=88
