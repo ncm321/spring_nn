@@ -28,11 +28,13 @@
 #include <linux/tcp.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
+#include <sqlite3.h>
+#include "mysqlite3.h"
 
 #define  MSG_STR "Hello,I am ready to connect with you!"
 #define  TEMP "temperature"
-#define  HEARTBEAT_INTERVAL 5 
-
+#define  HEARTBEAT_INTERVAL 5
+#define  SQL_NAME      "COMPANY"
 
 void print_usage(char *progname);
 int  get_temperature(float *temp);
@@ -64,6 +66,8 @@ int main (int argc, char **argv)
 //	ssize_t              num_bytes;
     int                  error = 0;
 	socklen_t            err_len = 0;
+	sqlite3             *db;
+	char                *sqlnam3=SQL_NAME;
 
 	struct option       opts[]={
 		{"ipaddr",required_argument,NULL,'i'},
@@ -237,6 +241,21 @@ int main (int argc, char **argv)
 	{
 
 		//将数据暂存于数据库中
+		//
+		/* 创建数据库和表 ,先判断表是否存在*/  
+        if((rv = create_table(db)) <0)
+		{
+
+			printf ("Create database failure:%s\n",strerror(errno));
+			goto cleanUp;
+		}
+
+		if((rv=table_insert(db))<0)
+		{
+
+			printf ("Insert data to table failure:%s\n",strerror(errno));
+			goto cleanUp;
+		}
 
 		close(conn_fd);
 		conn_fd=connect_to_server();

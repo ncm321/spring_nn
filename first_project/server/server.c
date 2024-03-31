@@ -28,11 +28,13 @@
 #include <pthread.h>
 #include <libgen.h>
 #include <netinet/in.h>
+#include <sqlite3.h>
+#include "mysqlite3.h"
 
 
 #define   MAX_EVENTS        512
 #define   ARRAY_SIZE(x)     (sizeof(x)/sizeof(x[0]))
-
+#define   SQL3_NAME           "SERVER_TABLE"
 
 static inline void  print_usage(char *progname);
 int                 socket_server_init(char *listen_ip,int listen_port);
@@ -55,6 +57,12 @@ int main (int argc, char **argv)
 	struct epoll_event  event;
 	struct epoll_event  event_array[MAX_EVENTS];
 	int                 events;
+	sqlite3            *db;
+	char                buf_sn[32];
+	char                buf_time[128];
+	char                table_temp[32];
+	float               tb_temp;
+	int                 ret=0;
 
 	struct option       opts[]={
 		{"daemon",no_argument,NULL,'b'},
@@ -186,6 +194,29 @@ int main (int argc, char **argv)
 				{
 
 					printf ("socked[%d] read get %d bytes data:%s\n",event_array[i].data.fd,read_rv,buf);
+			        ret = sscanf(buf,"%s %s %s",buf_sn,buf_time,table_temp);
+					printf ("debug04:%s,%s,%.2f\n",buf_sn,buf_time,atof(table_temp));
+					tb_temp=atof(table_temp);
+					/* create a new table */
+					if((rv=create_table(db,SQL3_NAME))<0)
+					{
+
+						printf ("Create table failure:%s\n",strerror(errno));
+					}
+					/* insert data to table */
+					if((rv=table_insert(db,SQL3_NAME,buf_sn,buf_time,&tb_temp))<0)
+					{
+
+						printf ("Insert data to table failure:%s\n",strerror(errno));
+					}
+					/* select data */
+					if((rv=table_select(db,SQL3_NAME))<0)
+					{
+
+						printf ("Select data from table failure:%s\n",strerror(errno));
+					}
+					/* delete or not */
+		//			rv=table_delete(db,SQL3_NAME);
 				}
 			}
 		}
@@ -200,7 +231,7 @@ int    socket_server_init(char *listen_ip,int listen_port)
 {
 	struct sockaddr_in        servaddr;
 	int                       rv = 0;
-	int                       on = 0;
+	int                       on = 1;
 	int                       listenfd;
 
 	if( (listenfd = socket(AF_INET,SOCK_STREAM,0))<0)
