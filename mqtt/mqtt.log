@@ -1,0 +1,12 @@
+
+2024-05-08 09:51:24.523469  INFO  logger.c:122: logger system(v0.1) start: file:"mqtt.log", level:INFO, maxsize:10KiB
+
+2024-05-08 09:51:24.523821  INFO  proc.c:055: Install default signal handler.
+
+2024-05-08 09:59:30.208805  INFO  logger.c:122: logger system(v0.1) start: file:"mqtt.log", level:INFO, maxsize:10KiB
+
+2024-05-08 09:59:30.209182  INFO  proc.c:055: Install default signal handler.
+
+2024-05-08 10:32:35.537433  INFO  logger.c:122: logger system(v0.1) start: file:"mqtt.log", level:INFO, maxsize:10KiB
+
+2024-05-08 10:32:35.537851  INFO  proc.c:055: Install default signal handler.
